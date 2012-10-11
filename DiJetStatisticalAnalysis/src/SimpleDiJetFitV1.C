@@ -7,13 +7,13 @@ void SimpleDiJetFitV1()
 
   //### Modify this part
   // Run2012B - only dijet, razoe, alfaT
-  char input_root_file[500] = "data/DataScouting_V00-01-03_Run2012B_runrange_193752-197044_dijet_alfaT_razor.root";
+  char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-03_Run2012B_runrange_193752-197044_dijet_alfaT_razor.root";
   // Run2012B - all analyses (and 1-2% more events)
-  //char input_root_file[500] = "data/DataScouting_V00-01-05_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-05_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
   // Run2012C - all analyses
-  //char input_root_file[500] = "data/DataScouting_V00-01-05_Run2012C_runrange_197885-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-05_Run2012C_runrange_197885-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
   // Run2012B+Run2012C - all analyses
-  //char input_root_file[500] = "data/DataScouting_V00-01-05_Run2012B_Run2012C_runrange_193752-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-05_Run2012B_Run2012C_runrange_193752-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
 
   char input_directory[500] = "DQMData_Merged Runs_DataScouting_Run summary_DiJet;1";
   char input_2Dhistogram[500] = "h2_DetajjVsMjjWide;1";
