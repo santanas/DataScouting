@@ -313,7 +313,8 @@ def GetIntegralError(histo):
 #--- Root files
 
 #File1 = GetFile("/data/santanas/Releases/CMSSW_5_2_5_patch1_DataScouting/src/DQM/DataScouting/test/DQM_V0001_R000194533__DataScouting__DQM__Test.root")
-File1 = GetFile("data/DataScouting_V00-01-03_Run2012B_runrange_193752-197044_dijet_alfaT_razor.root")
+File1 = GetFile("DataScouting_V00-01-03_Run2012B_runrange_193752-197044_dijet_alfaT_razor.root")
+## NEED TO UNDERSTAND HOW TO READ DIRECTLY FROM EOS IN PYROOT
 
 
 #--------- Muons ----------
