@@ -5,7 +5,10 @@ void SimpleDiJetFitV1()
 
   gStyle->SetOptFit(1111); 
 
-  //### Modify this part
+  //########################
+  //##### User Options #####
+  //########################
+
   // Run2012B - only dijet, razoe, alfaT
   char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-03_Run2012B_runrange_193752-197044_dijet_alfaT_razor.root";
   // Run2012B - all analyses (and 1-2% more events)
@@ -25,15 +28,35 @@ void SimpleDiJetFitV1()
   double maxX_mass = 4337.;
   //   double minX_mass = 270.;
   //   double maxX_mass = 1530.;
-  const int nPar=6; //number of fit parameters -  4 = default  , 5 = intermediate , 6 = fullCTEQ inspired
+
+  //Fit functions
+  // 0: DEFAULT (4 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )" 
+  //
+  // 1: VARIATION 1 (5 par.) - "( [0]*TMath::Power(1-x/8000,[1])*(1+[4]*x/8000) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )"
+  //
+  // 2: VARIATION 2 (6 par.) - "( [0]*TMath::Power(1-x/8000,[1])*(1+[4]*x/8000+[5]*pow(x/8000,2)) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )"
+  //    --> 2nd order poly extension : inspired by HERA PDF 1.0 [http://arxiv.org/abs/arXiv:0911.0884 , Eq. 4.1]
+  //
+  // 3: VARIATION 3 (7 par.) - "( [0]*TMath::Power(1-x/8000,[1])*exp([4]*x/8000)*TMath::Power(1+exp([5])*x/8000,[6]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )"
+  //    --> "exponential" extension wrt to DEFAULT - inspired by CTEQ 2008 [http://arxiv.org/pdf/hep-ph/0201195v3.pdf , Eq. 4]
+  //
+  // 4: VARIATION 4 (5 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)) )" 
+  //    --> "log" extension wrt to DEFAULT     
+  //
+  // 5: VARIATION 5 (6 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)+[5]*TMath::Power(log(x/8000),3)) )" 
+  //    --> "log" extension wrt to DEFAULT     
+  //
+  // 6: VARIATION 6 (7 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)+[5]*TMath::Power(log(x/8000),3)+[6]*TMath::Power(log(x/8000),4)) )" 
+  //    --> "log" extension wrt to DEFAULT     
+  //
+  const int FunctionType = 2;
 
   int number_of_variableWidth_bins = 88 - 1;
   Double_t massBins[88] = {1, 3, 6, 10, 16, 23, 31, 40, 50, 61, 74, 88, 103, 119, 137, 156, 176, 197, 220, 244, 270, 296, 325, 354, 386, 419, 453, 489, 526, 565, 606, 649,  693, 740, 788, 838, 890, 944, 1000, 1058, 1118, 1181, 1246, 1313, 1383, 1455, 1530, 1607, 1687, 1770, 1856, 1945, 2037, 2132, 2231, 2332, 2438, 2546, 2659, 2775, 2895, 3019, 3147, 3279, 3416, 3558, 3704, 3854, 4010, 4171, 4337, 4509, 4686, 4869, 5058, 5253, 5455, 5663, 5877, 6099, 6328, 6564, 6808, 7000, 7250,7500,7750,8000}; 
 
-  char output_root_file[500] = "fit_results.root";
-  
-
   //================================================================================================================
+
+  int nPar=-1; 
 
   //### input file and 2D histo
   TFile *file0=TFile::Open( input_root_file );
@@ -68,9 +91,11 @@ void SimpleDiJetFitV1()
   //### fit mass histogram with background function
   TF1 *M1Bkg;
 
-  if(nPar==4)
+  // 0: DEFAULT (4 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )" 
+  if( FunctionType==0 )    
     {
-      M1Bkg = new TF1("M1Bkg","([0]*TMath::Power(1-x/8000,[1]))/(TMath::Power(x/8000,[2]+[3]*log(x/8000)))",minX_mass,maxX_mass);
+      nPar=4;
+      M1Bkg = new TF1("M1Bkg","( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )",minX_mass,maxX_mass);
       M1Bkg->SetParameter(0,0.05);
       M1Bkg->SetParameter(1,7.1);
       M1Bkg->SetParameter(2,5.9);
@@ -78,39 +103,95 @@ void SimpleDiJetFitV1()
       //M1Bkg->SetParLimits(3,0,0.4);
     }
 
-  if(nPar==5)
+  // 1: VARIATION 1 (5 par.) - "( [0]*TMath::Power(1-x/8000,[1])*(1+[4]*x/8000) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )"
+  if( FunctionType==1 )    
     {
+      nPar=5;
       M1Bkg = new TF1("M1Bkg","( [0]*TMath::Power(1-x/8000,[1])*(1+[4]*x/8000) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )",minX_mass,maxX_mass);
-
       M1Bkg->SetParameter(0,0.005);
-      //      M1Bkg->SetParLimits(0,-1,1);
       M1Bkg->SetParameter(1,9.3);
-      //      M1Bkg->SetParLimits(1,-5,15);
       M1Bkg->SetParameter(2,7.2);
-      //      M1Bkg->SetParLimits(2,-5,15);
       M1Bkg->SetParameter(3,0.4);
-      //      M1Bkg->SetParLimits(3,-1,1);
       M1Bkg->SetParameter(4,3.1);
       //      M1Bkg->SetParLimits(4,-5,5);
     }
 
-   if(nPar==6)
+  // 2: VARIATION 2 (6 par.) - "( [0]*TMath::Power(1-x/8000,[1])*(1+[4]*x/8000+[5]*pow(x/8000,2)) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )"
+  //    --> 2nd order poly extension : inspired by HERA PDF 1.0 [http://arxiv.org/abs/arXiv:0911.0884 , Eq. 4.1]
+  if( FunctionType==2 )    
     {
+      nPar=6;
       M1Bkg = new TF1("M1Bkg","( [0]*TMath::Power(1-x/8000,[1])*(1+[4]*x/8000+[5]*pow(x/8000,2)) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )",minX_mass,maxX_mass);
-
       M1Bkg->SetParameter(0,0.005);
-      //      M1Bkg->SetParLimits(0,-1,1);
       M1Bkg->SetParameter(1,9.3);
-      //      M1Bkg->SetParLimits(1,-5,15);
       M1Bkg->SetParameter(2,7.2);
-      //      M1Bkg->SetParLimits(2,-5,15);
       M1Bkg->SetParameter(3,0.4);
-      //      M1Bkg->SetParLimits(3,-1,1);
       M1Bkg->SetParameter(4,3.1);
-      //      M1Bkg->SetParLimits(4,-5,5);
       M1Bkg->SetParameter(5,25.6);
-      //      M1Bkg->SetParLimits(5,10,50);
+      //      M1Bkg->SetParLimits(5,10,50);      
     }
+
+  // 3: VARIATION 3 (7 par.) - "( [0]*TMath::Power(1-x/8000,[1])*exp([4]*x/8000)*TMath::Power(1+exp([5])*x/8000,[6]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )"
+  //    --> "exponential" extension wrt to DEFAULT - inspired by CTEQ 2008 [http://arxiv.org/pdf/hep-ph/0201195v3.pdf , Eq. 4]
+  if( FunctionType==3 )    
+    {
+      nPar=7;
+      M1Bkg = new TF1("M1Bkg","( [0]*TMath::Power(1-x/8000,[1])*exp([4]*x/8000)*TMath::Power(1+exp([5])*x/8000,[6]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)) )" ,minX_mass,maxX_mass);
+      M1Bkg->SetParameter(0,0.005);
+      M1Bkg->SetParameter(1,15.1);
+      M1Bkg->SetParameter(2,7.2);
+      M1Bkg->SetParameter(3,0.4);
+      M1Bkg->SetParameter(4,13.0);
+      M1Bkg->SetParameter(5,-4.0);
+      M1Bkg->SetParameter(6,70.0);
+      //      M1Bkg->SetParLimits(4,-1,1);
+    }
+
+  // 4: VARIATION 4 (5 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)) )" 
+  //    --> "log" extension wrt to DEFAULT     
+  if( FunctionType==4 )    
+    {
+      nPar=5;
+      M1Bkg = new TF1("M1Bkg","( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)) )",minX_mass,maxX_mass);
+      M1Bkg->SetParameter(0,0.05);
+      M1Bkg->SetParameter(1,7.1);
+      M1Bkg->SetParameter(2,5.9);
+      M1Bkg->SetParameter(3,0.2);
+      M1Bkg->SetParameter(4,0.);
+      //M1Bkg->SetParLimits(3,0,0.4);
+    }
+
+  // 5: VARIATION 5 (6 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)+[5]*TMath::Power(log(x/8000),3)) )" 
+  //    --> "log" extension wrt to DEFAULT     
+  if( FunctionType==5 )    
+    {
+      nPar=6;
+      M1Bkg = new TF1("M1Bkg","( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)+[5]*TMath::Power(log(x/8000),3)) )",minX_mass,maxX_mass);
+      M1Bkg->SetParameter(0,0.05);
+      M1Bkg->SetParameter(1,7.1);
+      M1Bkg->SetParameter(2,5.9);
+      M1Bkg->SetParameter(3,0.2);
+      M1Bkg->SetParameter(4,0.);
+      M1Bkg->SetParameter(5,0.);
+      //M1Bkg->SetParLimits(3,0,0.4);
+    }
+
+  // 6: VARIATION 6 (7 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)+[5]*TMath::Power(log(x/8000),3)+[6]*TMath::Power(log(x/8000),4)) )" 
+  //    --> "log" extension wrt to DEFAULT     
+  if( FunctionType==6 )    
+    {
+      nPar=7;
+      M1Bkg = new TF1("M1Bkg","( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)+[5]*TMath::Power(log(x/8000),3)+[6]*TMath::Power(log(x/8000),4)) )",minX_mass,maxX_mass);
+      M1Bkg->SetParameter(0,0.05);
+      M1Bkg->SetParameter(1,7.1);
+      M1Bkg->SetParameter(2,5.9);
+      M1Bkg->SetParameter(3,0.2);
+      M1Bkg->SetParameter(4,0.);
+      M1Bkg->SetParameter(5,0.);
+      M1Bkg->SetParameter(6,0.);
+      //M1Bkg->SetParLimits(3,0,0.4);
+    }
+
 
   TFitResultPtr r;
   int stopProgram=1;
@@ -227,6 +308,9 @@ void SimpleDiJetFitV1()
   hist_fit_residual->Fit("gaus","L","",-3,3);
 
   //### Output files
+  char output_root_file[500];
+  sprintf(output_root_file,"dijetFitResults_FuncType%d_nParFit%d.root",FunctionType,nPar); 
+
   TFile f_output(output_root_file,"RECREATE");
   f_output.cd();
   Canvas0->Write();
@@ -237,13 +321,13 @@ void SimpleDiJetFitV1()
 
   //### Save figures from canvas
   char c0_fileName[200];
-  sprintf(c0_fileName,"dijetmass_nParFit%d.png",nPar);
+  sprintf(c0_fileName,"dijetmass_FuncType%d_nParFit%d.png",FunctionType,nPar);
   char c1_fileName[200];
-  sprintf(c1_fileName,"dijetmass_varbin_nParFit%d.png",nPar);
+  sprintf(c1_fileName,"dijetmass_varbin_FuncType%d_nParFit%d.png",FunctionType,nPar);
   char c2_fileName[200];
-  sprintf(c2_fileName,"fitresiduals_vs_mass_nParFit%d.png",nPar);
+  sprintf(c2_fileName,"fitresiduals_vs_mass_FuncType%d_nParFit%d.png",FunctionType,nPar);
   char c3_fileName[200];
-  sprintf(c3_fileName,"fitresiduals_nParFit%d.png",nPar);
+  sprintf(c3_fileName,"fitresiduals_FuncType%d_nParFit%d.png",FunctionType,nPar);
 
   Canvas0->SaveAs(c0_fileName);
   Canvas1->SaveAs(c1_fileName);
