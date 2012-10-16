@@ -133,9 +133,16 @@ To produce files needed for L1 efficiency studies please also change the followi
     process.PhysicsDSTOutput = cms.EndPath( process.hltOutputPhysicsDST )
 
 - modify the existing HLT_ZeroBias_v* path to create jets and met objects stored in PhysicsDST event content for each event 
-  #process.HLT_ZeroBias_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreZeroBias + process.HLTEndSequence ) 
-  process.HLT_ZeroBias_v6 = cms.Path( process.HLTBeginSequence + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltHtL1FastJet + process.HLTHBHENoiseCleanerSequence + process.hltMet + process.hltMetClean + process.HLTEndSequence )
 
+  -  change the path:
+     #process.HLT_ZeroBias_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreZeroBias + process.HLTEndSequence ) 
+     process.HLT_ZeroBias_v6 = cms.Path( process.HLTBeginSequence + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltHtL1FastJet + process.HLTHBHENoiseCleanerSequence + process.hltMet + process.hltMetClean + process.HLTEndSequence )
+  
+  - change the prescales:
+    cms.PSet(  pathName = cms.string( "HLT_ZeroBias_v6" ),
+       #prescales = cms.vuint32( 150, 150, 150, 150, 150, 150, 500, 500, 150 )
+       prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 0 )
+    ),
 
 ==> An example config file is hlt_data_L1studies.py
 
