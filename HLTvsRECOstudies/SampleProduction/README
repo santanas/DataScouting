@@ -111,6 +111,7 @@ Edit hlt_data.py:
       'keep *_hltL1GtObjectMap_*_*'                                      
                                            )
 
+
 --
 
 Run code:
@@ -121,7 +122,22 @@ the trigger report is here: hlt_data_01.txt
 the output .root file is here: outputPhysicsDST.root
 
 
+NOTE: 
+To produce files needed for L1 efficiency studies please also change the following points:
 
+- remove RAW data in process.hltOutputPhysicsDST (not needed for L1 efficiency studies)
+
+- remove event filters for the PhysicsDST output:
+  - remove process.hltPrePhysicsDSTOutputSmart from this line:
+    #process.PhysicsDSTOutput = cms.EndPath( process.hltPrePhysicsDSTOutputSmart + process.hltOutputPhysicsDST )
+    process.PhysicsDSTOutput = cms.EndPath( process.hltOutputPhysicsDST )
+
+- modify the existing HLT_ZeroBias_v* path to create jets and met objects stored in PhysicsDST event content for each event 
+  #process.HLT_ZeroBias_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreZeroBias + process.HLTEndSequence ) 
+  process.HLT_ZeroBias_v6 = cms.Path( process.HLTBeginSequence + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltHtL1FastJet + process.HLTHBHENoiseCleanerSequence + process.hltMet + process.hltMetClean + process.HLTEndSequence )
+
+
+==> An example config file is hlt_data_L1studies.py
 
 
 --------------------------------
