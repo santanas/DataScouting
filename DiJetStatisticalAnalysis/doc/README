@@ -9,3 +9,7 @@ description:  simple macro to produce nice plots in .png format directly from th
 ### 
 file: effHLT_DiJet_DataScouting2012.py
 description: calculate HLT efficiency using the DQM histograms (some fixes are needed to allow variable binning and read directly from eos)
+
+###
+file: effL1_DiJet_DataScouting2012.py
+description: calculate L1 efficiency using the DQM histograms (some fixes are needed to allow variable binning and read directly from eos)
