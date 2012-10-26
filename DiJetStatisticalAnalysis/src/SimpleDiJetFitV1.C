@@ -8,17 +8,16 @@ void SimpleDiJetFitV1()
   //########################
   //##### User Options #####
   //########################
-
-  // Run2012B - only dijet, razoe, alfaT
-  char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-03_Run2012B_runrange_193752-197044_dijet_alfaT_razor.root";
-  // Run2012B - all analyses (and 1-2% more events)
-  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-05_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  // Run2012B - all analyses 
+  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
   // Run2012C - all analyses
-  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-05_Run2012C_runrange_197885-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012C_runrange_197885-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
   // Run2012B+Run2012C - all analyses
-  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-05_Run2012B_Run2012C_runrange_193752-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012B_Run2012C_runrange_193752-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  char input_directory[500] = "DQMData/Run 999999/DataScouting/Run summary/DiJet";
+  
+  char fileNameSuffix[500] = "Run2012BC"; //i.e. run period
 
-  char input_directory[500] = "DQMData_Merged Runs_DataScouting_Run summary_DiJet;1";
   char input_2Dhistogram[500] = "h2_DetajjVsMjjWide;1";
   double minY_deta = 0.;
   double maxY_deta = 1.3;
@@ -49,7 +48,7 @@ void SimpleDiJetFitV1()
   // 6: VARIATION 6 (7 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)+[5]*TMath::Power(log(x/8000),3)+[6]*TMath::Power(log(x/8000),4)) )" 
   //    --> "log" extension wrt to DEFAULT     
   //
-  const int FunctionType = 2;
+  const int FunctionType = 4;
 
   int number_of_variableWidth_bins = 88 - 1;
   Double_t massBins[88] = {1, 3, 6, 10, 16, 23, 31, 40, 50, 61, 74, 88, 103, 119, 137, 156, 176, 197, 220, 244, 270, 296, 325, 354, 386, 419, 453, 489, 526, 565, 606, 649,  693, 740, 788, 838, 890, 944, 1000, 1058, 1118, 1181, 1246, 1313, 1383, 1455, 1530, 1607, 1687, 1770, 1856, 1945, 2037, 2132, 2231, 2332, 2438, 2546, 2659, 2775, 2895, 3019, 3147, 3279, 3416, 3558, 3704, 3854, 4010, 4171, 4337, 4509, 4686, 4869, 5058, 5253, 5455, 5663, 5877, 6099, 6328, 6564, 6808, 7000, 7250,7500,7750,8000}; 
@@ -309,7 +308,7 @@ void SimpleDiJetFitV1()
 
   //### Output files
   char output_root_file[500];
-  sprintf(output_root_file,"dijetFitResults_FuncType%d_nParFit%d.root",FunctionType,nPar); 
+  sprintf(output_root_file,"dijetFitResults_FuncType%d_nParFit%d_%s.root",FunctionType,nPar,fileNameSuffix); 
 
   TFile f_output(output_root_file,"RECREATE");
   f_output.cd();
@@ -321,16 +320,31 @@ void SimpleDiJetFitV1()
 
   //### Save figures from canvas
   char c0_fileName[200];
-  sprintf(c0_fileName,"dijetmass_FuncType%d_nParFit%d.png",FunctionType,nPar);
+  sprintf(c0_fileName,"dijetmass_FuncType%d_nParFit%d_%s.png",FunctionType,nPar,fileNameSuffix);
   char c1_fileName[200];
-  sprintf(c1_fileName,"dijetmass_varbin_FuncType%d_nParFit%d.png",FunctionType,nPar);
+  sprintf(c1_fileName,"dijetmass_varbin_FuncType%d_nParFit%d_%s.png",FunctionType,nPar,fileNameSuffix);
   char c2_fileName[200];
-  sprintf(c2_fileName,"fitresiduals_vs_mass_FuncType%d_nParFit%d.png",FunctionType,nPar);
+  sprintf(c2_fileName,"fitresiduals_vs_mass_FuncType%d_nParFit%d_%s.png",FunctionType,nPar,fileNameSuffix);
   char c3_fileName[200];
-  sprintf(c3_fileName,"fitresiduals_FuncType%d_nParFit%d.png",FunctionType,nPar);
+  sprintf(c3_fileName,"fitresiduals_FuncType%d_nParFit%d_%s.png",FunctionType,nPar,fileNameSuffix);
 
   Canvas0->SaveAs(c0_fileName);
   Canvas1->SaveAs(c1_fileName);
   Canvas2->SaveAs(c2_fileName);
   Canvas3->SaveAs(c3_fileName);
 }
+
+
+  //########################################################################################
+  //### OLD FILES WITH BUG (to reproduce the plots presented at the first dijet meeting) ###
+  //########################################################################################
+  //   // Run2012B - only dijet, razoe, alfaT
+  //   char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-03_Run2012B_runrange_193752-197044_dijet_alfaT_razor.root";
+  //   // Run2012B - all analyses (and 1-2% more events)
+  //   //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-05_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  //   // Run2012C - all analyses
+  //   //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-05_Run2012C_runrange_197885-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  //   // Run2012B+Run2012C - all analyses
+  //   //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-05_Run2012B_Run2012C_runrange_193752-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  //   char input_directory[500] = "DQMData_Merged Runs_DataScouting_Run summary_DiJet;1";
+
