@@ -1,0 +1,331 @@
+README for
+Data Scouting Analysis Project
+
+-------------------------------------------------------------------------------
+PROJECT SUMMARY AND DETAILS FOR CONTACT
+-------------------------------------------------------------------------------
+
+Project carried out by Scott W Thomas - Summer student 2013
+Email Scott.William.Thomas@cern.ch (active for 2 months after 2013-08-16)
+alternate email swt30@uclive.ac.nz
+or Francesco.Santanastasio@cern.ch (supervisor)
+
+The project comprises the following key scripts:
+AnalysisClass.C
+AnalysisClass.h
+CBShape.C
+doAnalysis.C
+doHistAnalysis.C
+
+All scripts have been written to be run in compiled fashion: 
+>> root scriptname.C+
+They work on my computer, which runs ROOT v5.34/09. doAnalysis in particular will take forever if you run it interactively because of all the events that have to be processed!
+
+The following data files should be present in the directory to run the scripts 
+as originally written:
+... for doAnalysis.C
+    (in ./)
+        (1) ntuple_HLT_vs_RECO__JetHT_Run2012B_v1__370kevents.root
+
+... for doHistAnalysis.C
+    (in ./rootfiles/)
+        (2) DataScouting_V00-01-06_Run2012B_Run2012C_Run2012D_runrange_193752-208686_dijet_alfaT_razor_dijetpairs_trijetpairs.root
+        (3)    DataScouting_V00-01-06_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root
+        (4) DataScouting_V00-01-06_Run2012C_runrange_197885-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root
+        (5) DataScouting_V00-01-06_Run2012D_runrange_203773-208686_dijet_alfaT_razor_dijetpairs_trijetpairs.root
+    
+A git directory is also included if you want to review changes, which can be done using 
+>> git log
+or a graphical tool such as
+>> gitk
+
+-------------------------------------------------------------------------------
+QUICK RUN
+-------------------------------------------------------------------------------
+To run the scripts as written, start ROOT 
+>> root
+and do the following.
+    .x doAnalysis.C+
+    .x doHistAnalysis.C+
+
+-------------------------------------------------------------------------------
+ANALYSISCLASS.H, ANALYSISCLASS.C, AND DOANALYSIS.C
+-------------------------------------------------------------------------------
+These three files are required for doing the first part of the analysis: making initial plots, doing the jet matching,  fitting the crystal ball functions...
+
+AnalysisClass.h
+---------------
+AnalysisClass.h is a header file generated automatically to handle interface with the TTree that stores the events used for the matching analysis (file 1).
+It should not need to be modified, unless you want to mess around with the class structure.
+
+AnalysisClass.C
+---------------
+AnalysisClass.C is the file which contains the key function definitions for this analysis.
+They are well-commented - every code block should have a description, hopefully useful!
+
+A "General Setup" section at the start contains the definitions for a few useful variables and things that are used throughout the file.
+    
+"Useful function definitions":
+    DeltaR
+        Calculates R difference given two TLorentzVectors.
+        Input: 
+            TLorentzVector* - first vector
+            TLorentzVector* - second vector
+        Return:
+            float - delta R / dimensionless
+    
+    DeltaEta
+        Calculates eta difference. See above.
+    
+    DeltaPhi
+        Calculates phi difference. See above.
+        
+    DijetMass
+        Calculates the dijet mass given two Lorentz vectors of two (wide) jets.
+        Input:
+            TLorentzVector* - first vector
+            TLorentzVector* - second vector
+        Returns:
+           float - dijet mass / same units as the energy E in the TLorentzVectors
+            
+    ColSum
+        In a 2D histogram, calculates the sum along a particular column.
+        Uses the bin naming convention for a TH1 (1 = first column).
+        Input:
+            TH2F* - histogram
+            int - column number
+        Returns:
+            float - column sum
+            
+    RowSum 
+        as above, but sums a row instead of a column
+        
+    ColNumNonzero
+        In a 2D histogram, gets the number of bins along a column that aren't zero.
+        This was intended so you could use it with ColSum to get the average in the non-zero bins.
+        Input:
+            TH2F* - histogram
+            int - column number
+        Returns:
+            int - number of bins in that column which are non-zero
+            
+    RowNumNonZero
+        as above, but along a row instead of a column
+    
+    GetFirstJetVectorFromPair
+        My setup for handling the results from jet matching was to have a Vector which holds many pairs of TLorentzVectors: vector<pair<TLorentzVector, TLorentzVector> >.
+        This is awkward if you need to disentangle the pair to look at just the first vector.
+        This function does that.
+        You can think of it as taking an nx2-dim array and returning an n-dim vector.
+        Input: 
+            vector<pair<TLorentzVector, TLorentzVector> >* - pointer to the data structure produced in the Loop method.
+        Returns:
+            vector<TLorentzVector> - list of all the first jets in each matched pairs
+            
+    GetSecondJetVectorFromPair
+        as above, but returns the second jet instead
+
+"Central Loop Code":
+    AnalysisClass::Loop
+        Loops over all events and extracts key information contained within.
+        In particular, does the following:
+            extract lists of DS and RO jets
+            applies threshold cuts as defined below
+            combines into wide jets
+            matches up each DS jet with a corresponding RECO jet
+            calculates the dijet mass from the wide jets
+        Important notes:
+            If you change this code, you might need to alter the section starting with the comment "Enable only the relevant branches" otherwise you cannot access all the branches in the TTree.
+        Requirements:
+            Requires the following variables to be defined in a wider scope (done at the beginning of the document):
+                vector<float> dsMass, recoMass - wide jet dijet masses
+                vector<TLorentzVector> dsJetList, recoJetList - jet 4-vectors (all jets)
+                vector<pair<TLorentzVector, TLorentzVector>> matchedJets - (matched jets only)
+                vector<float> matchedJetDeltaR - for said matched jets, the R difference
+        Input:
+            No direct arguments
+        Returns:
+            No direct return - saves its data into the variables listed above
+    
+"Histograms and such":
+    MakeOverviewHistograms
+        Makes a variety of histograms which cover the distributions of some jet statistics
+        e.g. distance between matched jets; distributions of Pt and Eta; energy differences
+        Inputs:
+            vector<pair<TLorentzVector, TLorentzVector>>* pMatchedJets - the output from Loop
+            vector<float> * pDsDijetMass, * pRecoDijetMass - also from Loop
+        Return:
+            no direct returns
+        Output:
+            All these histograms are saved into the file overviewHists.root:
+                Unmatched distribution of jet pts for both DS and RECO
+                Unmatched distribution of dijet masses for both DS and RECO
+                Differences in R for matched DS/RECO jets
+                Fractional differences in matched jets:
+                    in pt
+                    in eta
+                    in E
+                    in rho
+                    in phi
+                2D histogram with distribution of event numbers in pt/eta space for DS jets
+    
+    GenerateBinEdges
+        Generates a list of bins for a 2D histogram given max/min extent and size of bins.
+        Inputs:
+            float ptMin, ptMax, absEtaMin, absEtaMax - parameter space dimensions
+            float ptSize, absEtaSize - bin sizes
+        Returns:
+            pair <vector<float>,vector<float>> - pair of vectors containing bin edges
+            
+    GetBinEdges
+        Given a TH2F, gets the bin edges from it in the same format as above.
+        Inputs:
+            TH2F* - histogram
+        Returns:
+            as above
+    
+    MakeBinHist
+        Given the output from Loop and a list of bin edges, makes a 2D histogram showing the distribution of matched jets (just the DS jets) in pt/|eta| space.
+        Inputs:
+            pair<vector<float>,vector<float>> - bin lists, same format as above
+            vector<pair<TLorentzVector, TLorentzVector>>  - the matched jet list from Loop
+        Returns:
+            TH2F* - the histogram
+            Saves to BinHists.root
+            
+    RebinHistogram
+        Given a TH2F and a new set of bin edges, rebins the histogram by merging bins.
+        Also replots and re-saves the histogram.
+        Note: the edges have to be the same, bar deletions in the rebinned case. 
+        That is, you can't shift or split bins, only combine them.
+        I haven't implemented error checking here so don't screw it up!
+        Inputs:
+            TH2F* - the histogram
+            pair<vector<float>,vector<float>> - new bin edges, same format as above
+        Returns:
+            No direct returns
+        Outputs:
+            Saves histogram to TH2F and also to the file BinHists.root
+            
+    AutoRebin
+        Given a TH2F, runs RebinHistogram until the histogram has "enough events per bin".
+        Basically this means we merge bins until the columns and rows with not much data in them have enough data per bin to get a meaningful fit (~100 events or so)
+        Some bins will still have few events, of course, but it does help as we get to high pt.
+        Inputs:
+            TH2F* - the histogram
+        Returns:
+            No direct returns
+        Outputs:
+            Saves rebinned histogram to TH2F and also to BinHists.root
+            
+    FitShapeToBin
+        Given a specific bin in a TH2F, fits and plots a crystal ball function to the fractional difference distribution in jet pt within that bin.
+        Inputs:
+            TH2F* - the histogram
+            vector<pair<TLorentzVector, TLorentzVector>> - matched jets, output from Loop
+            int xbin, ybin - number of the bin you want to do this fit in
+            bool - fit with a crystal ball shape (true, default) or a Gaussian (false)
+        Returns:
+            TF1* - the fitted function
+        Outputs:
+            Appends the histogram and the fit to FitHists.root
+            
+    GetBinFitStats
+        Loops over the above function, fitting a crystal ball to every bin in the histogram.
+        Then extracts statistics on the fit (mean and s.d.) and plots these.
+        Requirements:
+            Requires the following variables to be defined in a wider scope (e.g. doAnalysis.C):
+                vector<float> pt, absEta, mean, sigma - empty vectors. The first two will hold the position of the bin and the second two will hold the value (so you'd want to plot (x,y,z) = (pt,absEta,sigma), for example)
+        Inputs:
+            TH2F* - the histogram
+            vector<float> *pt, *absEta, *mean, *sigma - pointers to above vectors
+            pair<vector<float>,vector<float>> - the bin edges from one of the above binning functions
+            bool - as above
+        Returns:
+            No direct returns
+        Outputs:
+            Saves data to the 4 vectors defined above.
+            Histograms produced go into meanSigmaHists.root
+
+doAnalysis.C
+------------
+doAnalysis.C is the file which actually puts all those functions to use.
+At present it is set up to:
+    * make histograms with overview stats about the sample jet file
+    * generate and appropriately rebin a histogram in pt/eta space
+    * within each bin, fit the jet pt distribution with a crystalball function
+    * produce and save all relevant histograms made during these steps
+
+------------------------------------------------------------------------------
+CBSHAPE.C
+------------------------------------------------------------------------------
+Contains the definition of the Crystal Ball function shape used in the fitting.
+The argument format used is that required by the TH1->Fit() procedure.
+
+------------------------------------------------------------------------------
+DOHISTANALYSIS.C
+------------------------------------------------------------------------------
+This file (probably could use a name change to distinguish it!) handles the second stage of the analysis in this project. 
+That consists of the background f-test and the ratio histograms for the different runs
+
+Unlike doAnalysis / AnalysisClass it is not split into script / function / header files.
+
+"Some useful functions":
+    BackgroundShape
+        Implementation of the background fitting function, including the ability to include extra parameters for the F-test.
+        In the required format to use TH1->Fit().
+        Note: the first of the parameters passed in *par is a number that indicates the total number of parameters (4+1 minimum). 
+        That is, if you were fitting the background shape + quadratic you would have: 
+            par[0] = 6+1 = 7
+            par[1-4] = P0, P1, P2, P3 - main function
+            par[5-6] = P4, P5 - quadratic part
+            
+    GetResidualSumSquares
+        Given a histogram and a fitted function, get the sum of squares of the residuals.
+        The calculation is done using the bin value compared to the function average (integral/bin width).
+        You need to include the range because the histogram and the fit aren't defined outside their respective regions - choose a range that includes both.
+        Inputs:
+            TH1D* - the histogram
+            TF1* - the function
+            Double_t* - the function parameters
+            Double_t xmin, xmax - range to do the calculation in
+        Returns:
+            Double_t - residual sum of squares
+            
+    GeNBinsInRange
+        Given TH1D and a range, get the number of bins completely within in that range.
+        Inputs:
+            TH1D* - the histogram
+            DOuble_t xmin, xmin - the range
+        Returns:
+            int - number of bins
+            
+    NormaliseByBinWidth
+        Normalise a TH1D by scaling each bin according to the bin width (to give dN/dx, for example).
+        Inputs:
+            TH1D* - histogram
+        Returns:
+            No explicit returns
+        Outputs:
+            The histogram is scaled in-place
+        
+    NormaliseByLuminosity
+        Normalise a TH1D by dividing it by the luminosity.
+        Inputs:
+            TH1D* - histogram
+            double - luminosity
+        Returns:
+            No explicit returns
+        Outputs:
+            The histogram is scaled in place by 1/luminosity
+            
+"Main analysis"
+    doHistAnalysis
+        This section runs through a lot of scripting to produce various histograms and do the F-test.
+        It should probably be separated out into functions for reusability.
+        In any case, here is what it does at the time of writing:
+            1. Imports the files stored in the rootfiles/ folder and extracts the dijet mass spectrum histograms.
+            2. Normalises the histograms according to luminosity and bin width.
+            3. Makes histograms of the ratios between the run periods B/C, B/D, C/D
+            4. Save & draw all histograms
+            5. Perform an f-test on the B+C+D dataset to see how many extra parameters are required to describe it adequately
