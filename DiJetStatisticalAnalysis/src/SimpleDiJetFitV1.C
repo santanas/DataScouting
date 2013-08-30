@@ -1,3 +1,5 @@
+#include <algorithm>
+
 void SimpleDiJetFitV1()
 {
 
@@ -9,14 +11,14 @@ void SimpleDiJetFitV1()
   //##### User Options #####
   //########################
   // Run2012B - all analyses 
-  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
   // Run2012C - all analyses
   //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012C_runrange_197885-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
   // Run2012B+Run2012C - all analyses
-  char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012B_Run2012C_runrange_193752-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012B_Run2012C_runrange_193752-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
   char input_directory[500] = "DQMData/Run 999999/DataScouting/Run summary/DiJet";
   
-  char fileNameSuffix[500] = "Run2012BC"; //i.e. run period
+  char fileNameSuffix[500] = "Run2012B"; //i.e. run period
 
   char input_2Dhistogram[500] = "h2_DetajjVsMjjWide;1";
   double minY_deta = 0.;
@@ -25,6 +27,7 @@ void SimpleDiJetFitV1()
   //   double maxX_mass = 4337.;
   double minX_mass = 270.;
   double maxX_mass = 4337.;
+  //double maxX_mass = 1530.;
   //   double minX_mass = 270.;
   //   double maxX_mass = 1530.;
 
@@ -48,7 +51,7 @@ void SimpleDiJetFitV1()
   // 6: VARIATION 6 (7 par.) - "( [0]*TMath::Power(1-x/8000,[1]) ) / ( TMath::Power(x/8000,[2]+[3]*log(x/8000)+[4]*TMath::Power(log(x/8000),2)+[5]*TMath::Power(log(x/8000),3)+[6]*TMath::Power(log(x/8000),4)) )" 
   //    --> "log" extension wrt to DEFAULT     
   //
-  const int FunctionType = 4;
+  const int FunctionType = 0;
 
   int number_of_variableWidth_bins = 88 - 1;
   Double_t massBins[88] = {1, 3, 6, 10, 16, 23, 31, 40, 50, 61, 74, 88, 103, 119, 137, 156, 176, 197, 220, 244, 270, 296, 325, 354, 386, 419, 453, 489, 526, 565, 606, 649,  693, 740, 788, 838, 890, 944, 1000, 1058, 1118, 1181, 1246, 1313, 1383, 1455, 1530, 1607, 1687, 1770, 1856, 1945, 2037, 2132, 2231, 2332, 2438, 2546, 2659, 2775, 2895, 3019, 3147, 3279, 3416, 3558, 3704, 3854, 4010, 4171, 4337, 4509, 4686, 4869, 5058, 5253, 5455, 5663, 5877, 6099, 6328, 6564, 6808, 7000, 7250,7500,7750,8000}; 
@@ -216,6 +219,49 @@ void SimpleDiJetFitV1()
       break;
     }
 
+  //### calculate chi2 by hand for 1 GeV bin fit
+  const double alpha = 1 - 0.6827;
+  int NumberOfObservations_FixBin = 0;
+  double chi2_FixBin = 0.;
+  for(int bin=1; bin<hist_mass->GetNbinsX()+1; bin++)
+    {
+      if( hist_mass->GetXaxis()->GetBinLowEdge(bin)>=minX_mass 
+ 	  && hist_mass->GetXaxis()->GetBinUpEdge(bin)<=maxX_mass )
+ 	{
+	  NumberOfObservations_FixBin++;
+
+	  double data = hist_mass->GetBinContent(bin);
+	  double err_data = hist_mass->GetBinError(bin);
+	  if( data == 0 )
+	    {
+	      err_data = 1.8;
+	    }
+//  	  if(data < 1)
+// 	    {
+// 	      double data_L =  (data==0) ? 0  : (ROOT::Math::gamma_quantile(alpha/2,data,1.)) ;
+// 	      double data_U =  ROOT::Math::gamma_quantile_c(alpha/2,data+1,1) ;
+// 	      double err_data_l = data - data_L;
+// 	      double err_data_h = data_U - data;
+// 	      err_data = max(err_data_h,err_data_l);	      
+// 	    }
+// 	  else
+// 	    {
+// 	      err_data = sqrt(data);
+// 	    }
+	  //double fit = M1Bkg->Eval(hist_mass->GetBinCenter(bin));
+	  double fit = M1Bkg->Integral(hist_mass->GetXaxis()->GetBinLowEdge(bin) 
+				       , hist_mass->GetXaxis()->GetBinUpEdge(bin) ); 
+	  fit = fit / ( hist_mass->GetBinWidth(bin) ); 
+	  chi2_FixBin += pow( (data - fit) , 2 ) / pow( err_data , 2 );
+	}
+    }
+  int ndf_FixBin = NumberOfObservations_FixBin - nPar -1 ;
+  cout << "============================" << endl;
+  cout << "NumberOfObservations_FixBin: " << NumberOfObservations_FixBin << endl;
+  cout << "ndf_FixBin: " << ndf_FixBin << endl;
+  cout << "chi2_FixBin: " << chi2_FixBin << endl;
+  cout << "============================" << endl;  
+
   //### make histogram with variable binning
   hist_mass->Rebin( number_of_variableWidth_bins, "hist_mass_varbin", massBins);
   //hist_mass_varbin->Draw();
@@ -232,10 +278,11 @@ void SimpleDiJetFitV1()
     }
   //hist_mass_varbin->Draw();
 
-
-  // fit residuals
+  // fit residuals and chi2
   TH1D* hist_fit_residual_vsMass = new TH1D("hist_fit_residual_vsMass","hist_fit_residual_vsMass",number_of_variableWidth_bins,massBins);
   TH1D* hist_fit_residual = new TH1D("hist_fit_residual","hist_fit_residual",10,-5,5);
+  int NumberOfObservations_VarBin = 0;
+  double chi2_VarBin = 0.;
  
   //cout << hist_mass_varbin->GetNbinsX() << endl;  
   for(int bin=1; bin<number_of_variableWidth_bins; bin++)
@@ -243,9 +290,15 @@ void SimpleDiJetFitV1()
       if( hist_mass_varbin->GetXaxis()->GetBinLowEdge(bin)>=minX_mass 
  	  && hist_mass_varbin->GetXaxis()->GetBinUpEdge(bin)<=maxX_mass )
  	{	  
+	  NumberOfObservations_VarBin++;
+
  	  //cout << hist_mass_varbin->GetXaxis()->GetBinLowEdge(bin) << endl;
 	  double data = hist_mass_varbin->GetBinContent(bin);
 	  double err_data = hist_mass_varbin->GetBinError(bin);
+	  if( data == 0 )
+	    {
+	      err_data = 1.8 / hist_mass_varbin->GetBinWidth(bin) ;
+	    }
 	  //double fit = M1Bkg->Eval(hist_mass_varbin->GetBinCenter(bin));
  	  double fit = M1Bkg->Integral(hist_mass_varbin->GetXaxis()->GetBinLowEdge(bin) 
  	  			       , hist_mass_varbin->GetXaxis()->GetBinUpEdge(bin) ); 
@@ -254,11 +307,9 @@ void SimpleDiJetFitV1()
 	  double err_tot = err_data;	  
 	  double fit_residual = (data - fit) / err_tot;
 	  double err_fit_residual = 1;
-	  if (data == 0)
-	    {
-	      fit_residual = (data - fit) / 1.29;
-	    }
 	    	  
+	  chi2_VarBin += pow( (data - fit) , 2 ) / pow( err_data , 2 );	 
+
 	  // 	  cout << "data, err_data, fit: " << data << ", " << err_data << ", " << fit << endl;
 	  // 	  cout << "bin, fit residual : " << bin << ", " <<fit_residual << endl;	  
 	  hist_fit_residual_vsMass->SetBinContent(bin,fit_residual);
@@ -266,7 +317,12 @@ void SimpleDiJetFitV1()
 	  hist_fit_residual->Fill(fit_residual);
  	}
     }
-
+  int ndf_VarBin = NumberOfObservations_VarBin - nPar -1 ;
+  cout << "============================" << endl;
+  cout << "NumberOfObservations_VarBin: " << NumberOfObservations_VarBin << endl;
+  cout << "ndf_VarBin: " << ndf_VarBin << endl;
+  cout << "chi2_VarBin: " << chi2_VarBin << endl;
+  cout << "============================" << endl;  
   
   //### Draw plots
 
