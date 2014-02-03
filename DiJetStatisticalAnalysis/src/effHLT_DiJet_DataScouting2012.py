@@ -312,28 +312,34 @@ def GetIntegralError(histo):
 
 #--- Root files
 
+#NEW (Bora)
+File1 = GetFile("/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunBCD.root")
+
+#OLD
 #File1 = GetFile("/data/santanas/Releases/CMSSW_5_2_5_patch1_DataScouting/src/DQM/DataScouting/test/DQM_V0001_R000194533__DataScouting__DQM__Test.root")
-File1 = GetFile("DataScouting_V00-01-03_Run2012B_runrange_193752-197044_dijet_alfaT_razor.root")
+#File1 = GetFile("DataScouting_V00-01-03_Run2012B_runrange_193752-197044_dijet_alfaT_razor.root")
 ## NEED TO UNDERSTAND HOW TO READ DIRECTLY FROM EOS IN PYROOT
 
 
 #--------- Muons ----------
 outputFile = "effHLT.png"
 
-h_Mjj_den_NOdeta = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_den_NOdeta" , File1)
-h_Mjj_num_NOdeta = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_num_NOdeta" , File1)
+h_Mjj_den_NOdeta = GetHisto( "scoutingDiJetVariables/h1_MjjWide_den_NOdeta" , File1)
+h_Mjj_num_NOdeta = GetHisto( "scoutingDiJetVariables/h1_MjjWide_num_NOdeta" , File1)
 
-h_Mjj_den_detaL4 = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_den_detaL4" , File1)
-h_Mjj_num_detaL4 = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_num_detaL4" , File1)
+h_Mjj_den_detaL4 = GetHisto( "scoutingDiJetVariables/h1_MjjWide_den_detaL4" , File1)
+h_Mjj_num_detaL4 = GetHisto( "scoutingDiJetVariables/h1_MjjWide_num_detaL4" , File1)
 
-h_Mjj_den_detaL3 = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_den_detaL3" , File1)
-h_Mjj_num_detaL3 = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_num_detaL3" , File1)
+h_Mjj_den_detaL3 = GetHisto( "scoutingDiJetVariables/h1_MjjWide_den_detaL3" , File1)
+h_Mjj_num_detaL3 = GetHisto( "scoutingDiJetVariables/h1_MjjWide_num_detaL3" , File1)
 
-h_Mjj_den_detaL2 = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_den_detaL2" , File1)
-h_Mjj_num_detaL2 = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_num_detaL2" , File1)
+h_Mjj_den_detaL2 = GetHisto( "scoutingDiJetVariables/h1_MjjWide_den_detaL2" , File1)
+h_Mjj_num_detaL2 = GetHisto( "scoutingDiJetVariables/h1_MjjWide_num_detaL2" , File1)
 
-h_Mjj_den = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_den" , File1)
-h_Mjj_num = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_num" , File1)
+h_Mjj_den = GetHisto( "scoutingDiJetVariables/h1_MjjWide_den" , File1)
+h_Mjj_num = GetHisto( "scoutingDiJetVariables/h1_MjjWide_num" , File1)
+
+#h_Mjj_num = GetHisto( "DQMData_Merged Runs_DataScouting_Run summary_DiJet/h1_MjjWide_num" , File1) #OLD
 
 ############################
 #variable binning
