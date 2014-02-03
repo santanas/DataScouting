@@ -2,13 +2,27 @@
 
   gROOT->Reset();
 
+  // ** Run2012BCD - dijet **
+  char input_root_file[500] = "/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunBCD.root";
+  // ** Run2012B - dijet **
+  //char input_root_file[500] = "/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunB.root";
+  // ** Run2012C - dijet **
+  //  char input_root_file[500] = "/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunC.root";
+  // ** Run2012D - dijet **
+  //  char input_root_file[500] = "/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunD.root";
+  char input_directory[500] = "scoutingDiJetVariables";//new Bora
+
+  //======================================================
+  // ** OLD **
   // Run2012B - all analyses 
-  char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
+  //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012B_runrange_193752-197044_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
   // Run2012C - all analyses
   //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012C_runrange_197885-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
   // Run2012B+Run2012C - all analyses
   //char input_root_file[500] = "root://eoscms//eos/cms/store/cmst3/user/santanas/DataScouting/DQM_histograms/DataScouting_V00-01-06_Run2012B_Run2012C_runrange_193752-203755_dijet_alfaT_razor_dijetpairs_trijetpairs.root";
-  char input_directory[500] = "DQMData/Run 999999/DataScouting/Run summary/DiJet";
+  //char input_directory[500] = "DQMData/Run 999999/DataScouting/Run summary/DiJet";//old CVS
+  //======================================================
+
 
   TFile *file0=TFile::Open( input_root_file );
   TDirectoryFile* DQMData_Merged_Runs_DataScouting_Run_summary_DiJet = (TDirectoryFile*) file0->Get( input_directory );
@@ -20,21 +34,21 @@
   TH1D* h1_cutFlow = (TH1D*) DQMData_Merged_Runs_DataScouting_Run_summary_DiJet->Get( "h1_cutFlow;1" );  
   h1_cutFlow->SetStats(0);
   h1_cutFlow->Draw();
-  c1.SaveAs("cutFlow_Run2012B.png");
+  c1.SaveAs("cutFlow_Run2012BCD.png");
 
   //--------------------------
   TCanvas c2("c2","c2",800,600);
   TH1D* h1_selJets_emEnergyFraction = (TH1D*) DQMData_Merged_Runs_DataScouting_Run_summary_DiJet->Get( "h1_selJets_emEnergyFraction;1" );  
   h1_selJets_emEnergyFraction->SetStats(0);
   h1_selJets_emEnergyFraction->Draw();
-  c2.SaveAs("EM_Energy_Fraction_Run2012B.png");
+  c2.SaveAs("EM_Energy_Fraction_Run2012BCD.png");
 
   //--------------------------
   TCanvas c3("c3","c3",800,600);
   TH1D* h1_selJets_hadEnergyFraction = (TH1D*) DQMData_Merged_Runs_DataScouting_Run_summary_DiJet->Get( "h1_selJets_hadEnergyFraction;1" );  
   h1_selJets_hadEnergyFraction->SetStats(0);
   h1_selJets_hadEnergyFraction->Draw();
-  c3.SaveAs("HAD_Energy_Fraction_Run2012B.png");
+  c3.SaveAs("HAD_Energy_Fraction_Run2012BCD.png");
 
   //--------------------------
   TCanvas c4("c4","c4",800,600);
@@ -42,7 +56,7 @@
   TH1D* h1_DphijjWide_finalSel = (TH1D*) DQMData_Merged_Runs_DataScouting_Run_summary_DiJet->Get( "h1_DphijjWide_finalSel;1" );  
   h1_DphijjWide_finalSel->SetStats(0);
   h1_DphijjWide_finalSel->Draw();
-  c4.SaveAs("dphi_finalSel_Run2012B.png");
+  c4.SaveAs("dphi_finalSel_Run2012BCD.png");
 
   //--------------------------
   TCanvas c5("c5","c5",800,600);
@@ -50,7 +64,7 @@
   TH2D* h2_metVSmetclean = (TH2D*) DQMData_Merged_Runs_DataScouting_Run_summary_DiJet->Get( "h2_metVSmetclean;1" );  
   h2_metVSmetclean->SetStats(0);
   h2_metVSmetclean->Draw("colz");
-  c5.SaveAs("met_vs_metClean_Run2012B.png");
+  c5.SaveAs("met_vs_metClean_Run2012BCD.png");
 
   //--------------------------
   TCanvas c6("c6","c6",800,600);
@@ -85,7 +99,7 @@
   //
   c6.Modified();
   c6.Update();
-  c6.SaveAs("HT_noiseRejection_Run2012B.png");
+  c6.SaveAs("HT_noiseRejection_Run2012BCD.png");
 
   //--------------------------
   TCanvas c7("c7","c7",800,600);
@@ -120,7 +134,7 @@
   //
   c7.Modified();
   c7.Update();
-  c7.SaveAs("Mjj_noiseRejection_Run2012B.png");
+  c7.SaveAs("Mjj_noiseRejection_Run2012BCD.png");
 
 
 }
