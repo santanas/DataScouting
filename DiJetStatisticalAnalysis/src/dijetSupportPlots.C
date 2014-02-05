@@ -3,13 +3,13 @@
   gROOT->Reset();
 
   // ** Run2012BCD - dijet **
-  char input_root_file[500] = "/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunBCD.root";
+  char input_root_file[500] = "root://eoscms//eos/cms//store/group/phys_exotica/dijet/scouting_8TeV_2012/DQM_histograms/DataScouting_Bora040214_Run2012BCD_runrange_193834-208686_dijet.root";
   // ** Run2012B - dijet **
-  //char input_root_file[500] = "/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunB.root";
+  //char input_root_file[500] = "root://eoscms//eos/cms//store/group/phys_exotica/dijet/scouting_8TeV_2012/DQM_histograms/DataScouting_Bora040214_Run2012B_runrange_193834-196531_dijet.root";
   // ** Run2012C - dijet **
-  //  char input_root_file[500] = "/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunC.root";
+  //char input_root_file[500] = "root://eoscms//eos/cms//store/group/phys_exotica/dijet/scouting_8TeV_2012/DQM_histograms/DataScouting_Bora040214_Run2012C_runrange_198049-203002_dijet.root";
   // ** Run2012D - dijet **
-  //  char input_root_file[500] = "/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunD.root";
+  //  char input_root_file[500] = "root://eoscms//eos/cms//store/group/phys_exotica/dijet/scouting_8TeV_2012/DQM_histograms/DataScouting_Bora040214_Run2012D_runrange_203777-208686_dijet.root";
   char input_directory[500] = "scoutingDiJetVariables";//new Bora
 
   //======================================================

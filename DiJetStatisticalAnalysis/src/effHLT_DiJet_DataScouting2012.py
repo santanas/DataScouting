@@ -313,7 +313,7 @@ def GetIntegralError(histo):
 #--- Root files
 
 #NEW (Bora)
-File1 = GetFile("/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/histoRunBCD.root")
+File1 = GetFile("/afs/cern.ch/work/s/santanas/Workspace/DiJetSearch2012/Scouting_8TeV_2012/05_02_2014/DataScouting_Bora040214_Run2012BCD_runrange_193834-208686_dijet.root")
 
 #OLD
 #File1 = GetFile("/data/santanas/Releases/CMSSW_5_2_5_patch1_DataScouting/src/DQM/DataScouting/test/DQM_V0001_R000194533__DataScouting__DQM__Test.root")
