@@ -1,0 +1,27 @@
+The test was done following the instructions at 
+https://twiki.cern.ch/twiki/bin/view/Main/ExoMCInstructions
+
+--------------------
+For 8 TeV requests:
+--------------------
+
+In CMSSW_5_3_14/src:
+
+mkdir -p Configuration/GenProduction/python/EightTeV
+(Put your config file in that folder)
+
+cmsenv
+
+scram b
+
+0) cmsDriver.py step1 --filein file:{your lhe file} ---mc --eventcontent LHE --datatier GEN --conditions START53_V7C::All -n 50 --no_exec
+time cmsRun {output root file}
+
+1) cmsDriver.py Configuration/GenProduction/python/EightTeV/{the hadronizer you are using} --filein file:{your output file from step 0} --mc --eventcontent RAWSIM --datatier GEN-SIM --conditions START53_V7C::All --beamspot Realistic8TeVCollision --step GEN,SIM -n 50 --no_exec
+time cmsRun {output root file}
+(NOTE: Omit "--filein file:{your output file from step 0}" if not an LHE request)
+
+Example of command used:
+cmsDriver.py Configuration/GenProduction/python/EightTeV/QstarToJJ_M_1000_Tune4C_8TeV_pythia8_cff.py --mc --eventcontent RAWSIM --datatier GEN-SIM --conditions START53_V7C::All --beamspot Realistic8TeVCollision --step GEN,SIM -n 50 --no_exec
+
+
